@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="jp" ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>サンプル</title>
+    <link rel="stylesheet" href="./css/reset.css">
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body ng-controller="CarouselAppController as crlCtrl">
+<div id="carouselArea" class="alignCenter">
+    <image-slider image-list="imageList"></image-slider>
+</div>
+
+<script src="./js/angular.1.7.7.js"></script>
+<script src="./js/angular-animate.min.js"></script>
+<script src="./js/jquery.3.3.1.js"></script>
+<script src="./js/imageCarousel.js"></script>
+</body>
+</html>
+
+<script>
+    var imageList = [
+        {'src': './image/image_1.png'},
+        {'src': './image/image_2.png'},
+        {'src': './image/image_3.png'}
+    ];
+</script>

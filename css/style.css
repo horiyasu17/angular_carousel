@@ -1,0 +1,71 @@
+/**
+ * STYLE.CSS
+ */
+.alignLeft {
+    text-align: left;
+}
+.alignCenter {
+    text-align: center;
+}
+.alignRight {
+    text-align: right;
+}
+.marginCentering {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+#carouselArea .viewArea {
+    position: relative;
+}
+#carouselArea .imageArea {
+    position: relative;
+    width: 84%;
+    height: 100%;
+    overflow: hidden;
+}
+#carouselArea .imageArea li {
+    width: 100%;
+    position: relative;
+    left: 0;
+    top: 0;
+    z-index: 5;
+}
+
+#carouselArea .navigationPoint {
+    height: 20px;
+    margin-top: 10px;
+}
+#carouselArea .navigationPoint li {
+    width: 20px;
+    height: 20px;
+    margin: 0 10px;
+    -webkit-border-radius: 20px;
+    border-radius: 20px;
+    background-color: gray;
+    display: inline-block;
+}
+#carouselArea .navigationPoint li.activePoint {
+    background-color: black;
+}
+
+.arrowButton {
+    position: absolute;
+    top: 130px;
+    z-index: 6;
+    border-right: 20px solid transparent;
+    border-bottom: 24px solid #b2ce54;
+    border-left: 20px solid transparent;
+    width: 0;
+}
+.leftArrow.arrowButton {
+    left: 0;
+    -webkit-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+}
+.rightArrow.arrowButton {
+    right: 0;
+    -webkit-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
