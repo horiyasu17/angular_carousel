@@ -10,7 +10,7 @@ directive('imageSlider', function() {
         template:
             '<div class="viewArea">'
             + '<ul class="imageArea marginCentering">'
-            + '<li ng-repeat="img in imageList" ng-if="$index == currentIndex" ng-class="{active: $index == currentIndex}" slide-item item-index="{{$index}}"><a><img ng-src="{{img.src}}"></a></li>'
+            + '<li ng-repeat="img in imageList" ng-class="{active: $index == currentIndex}" slide-item item-index="{{$index}}"><a><img ng-src="{{img.src}}"></a></li>'
             + '</ul>'
             + '<div ng-click="movePrev()" class="leftArrow arrowButton"></div>'
             + '<div ng-click="moveNext()" class="rightArrow arrowButton"></div>'
@@ -21,14 +21,17 @@ directive('imageSlider', function() {
         },
         controller: function($scope) {
             var $imageArea = $('.imageArea');
-            var areaSize = $imageArea.width();
+            var $imageElem = $('.imageArea li');
+            var $image = $('.imageArea li img');
+            var imageWidth = $imageArea.width();
+            var imageHeight = imageWidth / 2;
 
             $scope.currentIndex = 0;
             $scope.totalImageCount = $scope.imageList.length;
 
             //画像サイズ取得
             this.getAreaSize = function() {
-                return areaSize;
+                return {'width': imageWidth, 'height': imageHeight};
             };
 
             //次の画像を表示
@@ -58,10 +61,22 @@ directive('slideItem', function() {
             itemIndex: '@'
         },
         link: function(scope, elem, attr, ctrl) {
+            var $imageArea = $('.imageArea');
             var $elem = $(elem[0]);
-            var areaSize = ctrl.getAreaSize();
+            var imageSizeObject = ctrl.getAreaSize();
 
-            $elem.find('img').attr('width', areaSize);
+            $imageArea.css({
+                'height': imageSizeObject.height
+            });
+
+            $elem.find('img').css({
+                'width': imageSizeObject.width,
+                'height': imageSizeObject.height
+            });
+
+            $elem.css({
+                'left': imageSizeObject.width * scope.itemIndex
+            });
         }
     }
 }).
