@@ -2,7 +2,7 @@
  * Image Carousel
  ***********************************************/
 angular.module('myApp', []).
-//イメージスライダー
+//イメージスライダー機能追加
 directive('imageSlider', function() {
     return {
         restrict: 'E',
@@ -49,7 +49,7 @@ directive('imageSlider', function() {
         }
     }
 }).
-//スライドアイテム
+//スライドアイテム操作
 directive('slideItem', function() {
     return {
         restrict: 'A',
@@ -65,7 +65,7 @@ directive('slideItem', function() {
         }
     }
 }).
-//ナビゲーションポイント
+//ナビゲーションポイント制御
 directive('navigationPoint', function() {
     return {
         restrict: 'E',
