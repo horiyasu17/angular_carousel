@@ -8,7 +8,12 @@ service('ImageSlideService', function($interval) {
 
     ImageSlideService.currentIndex = 0;
     ImageSlideService.totalImageCount = 0;
+    ImageSlideService.imageList = {};
     ImageSlideService.imageSizeObject = {};
+
+    ImageSlideService.setIMageList = function(imageList) {
+        ImageSlideService.imageList = imageList;
+    };
 
     ImageSlideService.serCurrentIndex = function (index) {
         ImageSlideService.currentIndex = index;
@@ -20,6 +25,10 @@ service('ImageSlideService', function($interval) {
 
     ImageSlideService.setImageSizeObject = function (imageSizeObject) {
         ImageSlideService.imageSizeObject = imageSizeObject;
+    };
+
+    ImageSlideService.getIMageList = function() {
+        return ImageSlideService.imageList;
     };
 
     ImageSlideService.getMoveNextCurrentIndex = function() {
@@ -162,9 +171,11 @@ directive('navigationPoint', function() {
     }
 }).
 //カルーセルアップコントローラー
-controller('CarouselAppController', function($scope) {
+controller('CarouselAppController', function($scope, ImageSlideService) {
 
-    $scope.imageList = imageList;
-    $scope.aaaaaa = 'imageList';
+    $scope.init = function() {
+        ImageSlideService.setIMageList(imageList);
+        $scope.imageList = ImageSlideService.getIMageList();
+    };
 
 });
