@@ -10,6 +10,7 @@ service('ImageSlideService', function($interval) {
     ImageSlideService.totalImageCount = 0;
     ImageSlideService.imageList = {};
     ImageSlideService.imageSizeObject = {};
+    ImageSlideService.moveDirection = 'left';
 
     ImageSlideService.setIMageList = function(imageList) {
         ImageSlideService.imageList = imageList;
@@ -25,6 +26,10 @@ service('ImageSlideService', function($interval) {
 
     ImageSlideService.setImageSizeObject = function (imageSizeObject) {
         ImageSlideService.imageSizeObject = imageSizeObject;
+    };
+
+    ImageSlideService.setMoveDirection = function (moveDirection) {
+        ImageSlideService.moveDirection = moveDirection;
     };
 
     ImageSlideService.getIMageList = function() {
@@ -53,16 +58,26 @@ service('ImageSlideService', function($interval) {
         return ImageSlideService.imageSizeObject;
     };
 
-    ImageSlideService.initSlideSet = function(element, itemIndex) {
-        element.css({'left': ImageSlideService.imageSizeObject.width * itemIndex});
+    ImageSlideService.getMoveDirection = function () {
+        return ImageSlideService.moveDirection;
     };
 
-    ImageSlideService.slideLeft = function(element) {
-        element.css({'left': element.position().left - ImageSlideService.imageSizeObject.width});
+    ImageSlideService.initSlideSet = function(imageItem, itemIndex) {
+        imageItem.css({
+            'left': ImageSlideService.imageSizeObject.width * itemIndex
+        });
     };
 
-    ImageSlideService.slideRight = function(element) {
-        element.css({'left': element.position().left + ImageSlideService.imageSizeObject.width});
+    ImageSlideService.slideLeft = function(imageItem) {
+        imageItem.css({
+            'left': imageItem.position().left - ImageSlideService.imageSizeObject.width
+        });
+    };
+
+    ImageSlideService.slideRight = function(imageItem) {
+        imageItem.css({
+            'left': imageItem.position().left + ImageSlideService.imageSizeObject.width
+        });
     };
 
     ImageSlideService.autoSlideInterval = function(element) {
@@ -99,26 +114,20 @@ directive('imageSlider', function(ImageSlideService) {
             var imageWidth = $imageArea.width();
             var imageHeight = imageWidth / 2;
 
-            $scope.currentIndex = ImageSlideService.currentIndex;
-            $scope.totalImageCount =ImageSlideService.setTotalImageCount($scope.imageList.length);
-
             //画像サイズ設定
             ImageSlideService.setImageSizeObject({'width': imageWidth, 'height': imageHeight});
 
             //次の画像を表示
             $scope.moveNext = function() {
                 $scope.currentIndex = ImageSlideService.getMoveNextCurrentIndex();
-                ImageSlideService.slideLeft($imageArea);
+                ImageSlideService.setMoveDirection('left');
             };
 
             //前の画像を表示
             $scope.movePrev = function() {
                 $scope.currentIndex = ImageSlideService.getMovePrevCurrentIndex();
-                ImageSlideService.slideRight($imageArea);
+                ImageSlideService.setMoveDirection('right');
             };
-
-            $scope.$watch('currentIndex', function (newVal, oldVal) {
-            });
 
             // ImageSlideService.autoSlideInterval($imageArea);
         }
@@ -133,27 +142,40 @@ directive('slideItem', function(ImageSlideService) {
             itemIndex: '@'
         },
         controller($scope) {
-
-            $scope.$watch(function () {
-                return $scope.$parent.$parent.currentIndex;
-            });
+            $scope.initCount = 0;
+            $scope.$elem = {};
         },
         link: function(scope, elem, attr, ctrl) {
+
             var $imageArea = $('.imageArea');
-            var $elem = $(elem[0]);
             var imageSizeObject = ImageSlideService.getImageSizeObject();
-            scope.slidePoint = 0;
+            scope.$elem = $(elem[0]);
 
             $imageArea.css({
                 'height': imageSizeObject.height
             });
 
-            $elem.find('img').css({
+            scope.$elem.find('img').css({
                 'width': imageSizeObject.width,
                 'height': imageSizeObject.height
             });
 
-            ImageSlideService.initSlideSet($elem, scope.itemIndex);
+            ImageSlideService.initSlideSet(scope.$elem, scope.itemIndex);
+
+            scope.$watch(function () {
+                return scope.$parent.currentIndex;
+            }, function (newVal, oldVal) {
+                if (scope.initCount == 0) {
+                    scope.initCount += 1;
+                    return;
+                }
+
+                if(ImageSlideService.getMoveDirection() == 'left') {
+                    ImageSlideService.slideLeft(scope.$elem);
+                } else {
+                    ImageSlideService.slideRight(scope.$elem);
+                }
+            });
         }
     }
 }).
@@ -176,6 +198,8 @@ controller('CarouselAppController', function($scope, ImageSlideService) {
     $scope.init = function() {
         ImageSlideService.setIMageList(imageList);
         $scope.imageList = ImageSlideService.getIMageList();
+        $scope.currentIndex = ImageSlideService.currentIndex;
+        $scope.totalImageCount =ImageSlideService.setTotalImageCount($scope.imageList.length);
     };
 
 });
