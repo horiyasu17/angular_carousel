@@ -36,21 +36,7 @@ service('ImageSlideService', function($interval) {
         return ImageSlideService.imageList;
     };
 
-    ImageSlideService.getMoveNextCurrentIndex = function() {
-        ImageSlideService.currentIndex++;
-        if (ImageSlideService.totalImageCount - 1 < ImageSlideService.currentIndex) {
-            ImageSlideService.currentIndex = 0;
-        }
-
-        return ImageSlideService.currentIndex;
-    };
-
-    ImageSlideService.getMovePrevCurrentIndex = function() {
-        ImageSlideService.currentIndex--;
-        if (ImageSlideService.currentIndex < 0) {
-            ImageSlideService.currentIndex = ImageSlideService.totalImageCount - 1;
-        }
-
+    ImageSlideService.getCurrentIndex = function() {
         return ImageSlideService.currentIndex;
     };
 
@@ -69,12 +55,22 @@ service('ImageSlideService', function($interval) {
     };
 
     ImageSlideService.slideLeft = function(imageItem) {
+        ImageSlideService.currentIndex++;
+        if (ImageSlideService.totalImageCount - 1 < ImageSlideService.currentIndex) {
+            ImageSlideService.currentIndex = 0;
+        }
+
         imageItem.css({
             'left': imageItem.position().left - ImageSlideService.imageSizeObject.width
         });
     };
 
     ImageSlideService.slideRight = function(imageItem) {
+        ImageSlideService.currentIndex--;
+        if (ImageSlideService.currentIndex < 0) {
+            ImageSlideService.currentIndex = ImageSlideService.totalImageCount - 1;
+        }
+
         imageItem.css({
             'left': imageItem.position().left + ImageSlideService.imageSizeObject.width
         });
@@ -117,16 +113,17 @@ directive('imageSlider', function(ImageSlideService) {
             //画像サイズ設定
             ImageSlideService.setImageSizeObject({'width': imageWidth, 'height': imageHeight});
 
+
             //次の画像を表示
             $scope.moveNext = function() {
-                $scope.currentIndex = ImageSlideService.getMoveNextCurrentIndex();
-                ImageSlideService.setMoveDirection('left');
+                ImageSlideService.slideLeft($imageArea);
+                $scope.currentIndex = ImageSlideService.getCurrentIndex();
             };
 
             //前の画像を表示
             $scope.movePrev = function() {
-                $scope.currentIndex = ImageSlideService.getMovePrevCurrentIndex();
-                ImageSlideService.setMoveDirection('right');
+                ImageSlideService.slideRight($imageArea);
+                $scope.currentIndex = ImageSlideService.getCurrentIndex();
             };
 
             // ImageSlideService.autoSlideInterval($imageArea);
@@ -162,20 +159,20 @@ directive('slideItem', function(ImageSlideService) {
 
             ImageSlideService.initSlideSet(scope.$elem, scope.itemIndex);
 
-            scope.$watch(function () {
-                return scope.$parent.currentIndex;
-            }, function (newVal, oldVal) {
-                if (scope.initCount == 0) {
-                    scope.initCount += 1;
-                    return;
-                }
+            // scope.$watch(function () {
+            //     return scope.$parent.currentIndex;
+            // }, function (newVal, oldVal) {
+            //     if (scope.initCount == 0) {
+            //         scope.initCount += 1;
+            //         return;
+            //     }
 
-                if(ImageSlideService.getMoveDirection() == 'left') {
-                    ImageSlideService.slideLeft(scope.$elem);
-                } else {
-                    ImageSlideService.slideRight(scope.$elem);
-                }
-            });
+                // if(ImageSlideService.getMoveDirection() == 'left') {
+                //     ImageSlideService.slideLeft(scope.$elem);
+                // } else {
+                //     ImageSlideService.slideRight(scope.$elem);
+                // }
+            // });
         }
     }
 }).
