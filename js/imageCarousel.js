@@ -2,7 +2,7 @@
  * Image Carousel
  ***********************************************/
 angular.module('myApp', ['ngAnimate']).
-service('ImageSlideService', function($interval, $rootScope) {
+service('ImageSlideService', function($rootScope) {
     var ImageSlideService = {};
     var slideInterval = null;
 
@@ -84,20 +84,10 @@ service('ImageSlideService', function($interval, $rootScope) {
         }
     };
 
-    ImageSlideService.autoSlideInterval = function(element) {
-        var slideInterval = $interval(function() {
-            ImageSlideService.slideLeft(
-                element,
-                ImageSlideService.imageSizeObject.width
-            );
-            // $interval.cancel(slideInterval);
-        }, 3000);
-    };
-
     return ImageSlideService;
 }).
 //イメージスライダー機能追加
-directive('imageSlider', function(ImageSlideService) {
+directive('imageSlider', function(ImageSlideService, $interval) {
     return {
         restrict: 'E',
         replace: true,
@@ -141,7 +131,10 @@ directive('imageSlider', function(ImageSlideService) {
                 $scope.currentIndex = ImageSlideService.getCurrentIndex();
             };
 
-            // ImageSlideService.autoSlideInterval($imageArea);
+            var slideInterval = $interval(function() {
+                ImageSlideService.slideLeft();
+                $scope.currentIndex = ImageSlideService.getCurrentIndex();
+            }, 8000);
 
             return ImageSliderController;
         }
