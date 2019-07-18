@@ -2,54 +2,104 @@
  * Image Carousel
  ***********************************************/
 angular.module('myApp', ['ngAnimate']).
+//イメージスライドサービス
 service('ImageSlideService', function() {
     var ImageSlideService = {};
 
-    ImageSlideService.currentIndex = 0;
-    ImageSlideService.totalImageCount = 0;
-    ImageSlideService.imageArea = {};
-    ImageSlideService.imageList = {};
-    ImageSlideService.imageSizeObject = {};
-    ImageSlideService.moveDirection = 'left';
+    ImageSlideService.currentIndex = 0;         //現在のインデックス
+    ImageSlideService.totalImageCount = 0;      //イメージの総数
+    ImageSlideService.imageArea = {};           //イメージ表示エリア
+    ImageSlideService.imageList = {};           //イメージリスト
+    ImageSlideService.imageSizeObject = {};     //イメージサイズオブジェクト
+    ImageSlideService.moveDirection = 'left';   //スライドサイン変数
 
+    /**
+     * 初回イメージ数、イメージリストを格納
+     *
+     * @param imageList
+     */
     ImageSlideService.init = function(imageList) {
         ImageSlideService.setTotalImageCount(imageList.length);
-        ImageSlideService.setIMageList(imageList);
+        ImageSlideService.setImageList(imageList);
     };
 
-    ImageSlideService.setIMageList = function(imageList) {
+    /**
+     * イメージリストを変数に格納
+     *
+     * @param imageList
+     */
+    ImageSlideService.setImageList = function(imageList) {
         ImageSlideService.imageList = imageList;
     };
 
+    /**
+     * イメージ総数を変数に格納
+     *
+     * @param totalImageCount
+     */
     ImageSlideService.setTotalImageCount = function (totalImageCount) {
         ImageSlideService.totalImageCount = totalImageCount;
     };
 
+    /**
+     * イメージ表示エリアを変数に格納
+     *
+     * @param imageArea
+     */
     ImageSlideService.setImageArea = function (imageArea) {
         ImageSlideService.imageArea = imageArea;
     };
 
+    /**
+     * イメージサイズオブジェクトを変数に格納
+     *
+     * @param imageSizeObject
+     */
     ImageSlideService.setImageSizeObject = function (imageSizeObject) {
         ImageSlideService.imageSizeObject = imageSizeObject;
     };
 
-    ImageSlideService.getIMageList = function() {
+    /**
+     * イメージリストを返却
+     *
+     * @returns {*}
+     */
+    ImageSlideService.getImageList = function() {
         return ImageSlideService.imageList;
     };
 
+    /**
+     * 現在のインデックスを返却
+     *
+     * @returns {number}
+     */
     ImageSlideService.getCurrentIndex = function() {
         return ImageSlideService.currentIndex;
     };
 
+    /**
+     * イメージサイズオブジェクトを返却
+     *
+     * @returns {*}
+     */
     ImageSlideService.getImageSizeObject = function () {
         return ImageSlideService.imageSizeObject;
     };
 
+    /**
+     * スライドサイン変数を返却
+     *
+     * @returns {string}
+     */
     ImageSlideService.getMoveDirection = function () {
         return ImageSlideService.moveDirection;
     };
 
+    /**
+     * 左へスライド
+     */
     ImageSlideService.slideLeft = function() {
+        //イメージ総数が1つであれば、処理停止
         if(ImageSlideService.totalImageCount <= 1) return;
 
         ImageSlideService.currentIndex++;
@@ -60,7 +110,11 @@ service('ImageSlideService', function() {
         }
     };
 
+    /**
+     * 右へスライド
+     */
     ImageSlideService.slideRight = function() {
+        //イメージ総数が1つであれば、処理停止
         if(ImageSlideService.totalImageCount <= 1) return;
 
         ImageSlideService.currentIndex--;
@@ -93,7 +147,6 @@ directive('imageSlider', function(ImageSlideService, $interval) {
             + '</div>',
         scope: false,
         controller: function($scope) {
-
             var ImageSliderController = {};
 
             var $imageArea = $('.imageArea');
