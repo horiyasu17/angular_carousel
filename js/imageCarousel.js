@@ -2,7 +2,7 @@
  * Image Carousel
  ***********************************************/
 angular.module('myApp', ['ngAnimate']).
-service('ImageSlideService', function($interval) {
+service('ImageSlideService', function($interval, $rootScope) {
     var ImageSlideService = {};
     var slideInterval = null;
 
@@ -62,32 +62,26 @@ service('ImageSlideService', function($interval) {
         return ImageSlideService.moveDirection;
     };
 
-    ImageSlideService.initSlideSet = function(imageItem, itemIndex) {
-        imageItem.css({
-            'left': ImageSlideService.imageSizeObject.width * itemIndex
-        });
-    };
+    ImageSlideService.slideLeft = function() {
+        if(ImageSlideService.totalImageCount <= 1) return;
 
-    ImageSlideService.slideLeft = function(imageItem) {
         ImageSlideService.currentIndex++;
-        if (ImageSlideService.totalImageCount - 1 < ImageSlideService.currentIndex) {
+        ImageSlideService.moveDirection = 'left';
+
+        if ((ImageSlideService.totalImageCount - 1) < ImageSlideService.currentIndex) {
             ImageSlideService.currentIndex = 0;
         }
-
-        imageItem.css({
-            'left': imageItem.position().left - ImageSlideService.imageSizeObject.width
-        });
     };
 
-    ImageSlideService.slideRight = function(imageItem) {
-        ImageSlideService.currentIndex--;
-        if (ImageSlideService.currentIndex < 0) {
-            ImageSlideService.currentIndex = ImageSlideService.totalImageCount - 1;
-        }
+    ImageSlideService.slideRight = function() {
+        if(ImageSlideService.totalImageCount <= 1) return;
 
-        imageItem.css({
-            'left': imageItem.position().left + ImageSlideService.imageSizeObject.width
-        });
+        ImageSlideService.currentIndex--;
+        ImageSlideService.moveDirection = 'right';
+
+        if (ImageSlideService.currentIndex < 0) {
+            ImageSlideService.currentIndex = ImageSlideService.totalImageCount - 1
+        }
     };
 
     ImageSlideService.autoSlideInterval = function(element) {
@@ -111,7 +105,7 @@ directive('imageSlider', function(ImageSlideService) {
             '<div class="viewArea">'
             + '<div class="slideWrapper marginCentering">'
             + '<ul class="imageArea">'
-            + '<li ng-repeat="img in imageList" ng-class="{active: $index == currentIndex}" slide-item item-index="{{$index}}"><a><img ng-src="{{img.src}}"></a></li>'
+            + '<li ng-repeat="img in imageList" ng-show="$index == currentIndex" ng-class="{active: $index == currentIndex}" class="slide-animation" slide-item item-index="{{$index}}"><a><img ng-src="{{img.src}}"></a></li>'
             + '</ul>'
             + '</div>'
             + '<div ng-click="movePrev()" class="leftArrow arrowButton"></div>'
@@ -158,12 +152,12 @@ directive('slideItem', function(ImageSlideService) {
     return {
         restrict: 'A',
         require: '^^imageSlider',
-        scope: {
-            itemIndex: '@'
-        },
-        controller($scope) {
+        scope: false,
+        controller($scope, $element) {
             $scope.initCount = 0;
             $scope.$elem = {};
+
+            $scope.$emit('itemRoadFinished', $element);
         },
         link: function(scope, elem, attr, ctrl) {
             var $elem = $(elem[0]);
@@ -199,4 +193,35 @@ controller('CarouselAppController', function($scope, ImageSlideService) {
         $scope.totalImageCount = ImageSlideService.setTotalImageCount($scope.imageList.length);
     };
 
+})
+.animation('.slide-animation', function (ImageSlideService) {
+    return {
+        beforeAddClass: function (element, className, done) {
+
+            if (className === 'ng-hide') {
+                var finishPoint = ImageSlideService.imageSizeObject.width;
+                if(ImageSlideService.moveDirection !== 'right') {
+                    finishPoint = -finishPoint;
+                }
+                TweenMax.to(element, 0.5, {left: finishPoint, onComplete: done });
+            } else {
+                done();
+            }
+        },
+        removeClass: function (element, className, done) {
+
+            if (className === 'ng-hide') {
+                element.removeClass('ng-hide');
+
+                var startPoint = ImageSlideService.imageSizeObject.width;
+                if(ImageSlideService.moveDirection === 'right') {
+                    startPoint = -startPoint;
+                }
+
+                TweenMax.fromTo(element, 0.5, { left: startPoint }, {left: 0, onComplete: done });
+            } else {
+                done();
+            }
+        }
+    };
 });
