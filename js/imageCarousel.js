@@ -99,7 +99,13 @@ directive('imageSlider', function(ImageSlideService, $interval) {
             var $imageArea = $('.imageArea');
             var imageWidth = $imageArea.width();
             var imageHeight = imageWidth / 2;
+            var slideInterval = null;
 
+            ImageSlideService.init(imageList);
+            $scope.imageList = ImageSlideService.getImageList();
+            $scope.currentIndex = ImageSlideService.currentIndex;
+
+            //イメージ表示エリアを変数に格納
             ImageSlideService.setImageArea($imageArea);
 
             //画像サイズ設定
@@ -107,41 +113,37 @@ directive('imageSlider', function(ImageSlideService, $interval) {
             ImageSliderController.imageSizeObject = ImageSlideService.getImageSizeObject();
             $imageArea.css({'height': ImageSliderController.imageSizeObject.height});
 
-            //次の画像を表示
-            $scope.moveNext = function() {
+            //左へスライド、現在のインデックスを格納
+            var autoSlide = function() {
                 ImageSlideService.slideLeft();
                 $scope.currentIndex = ImageSlideService.getCurrentIndex();
+            };
+
+            //次の画像を表示
+            $scope.moveNext = function() {
+                $interval.cancel(slideInterval);
+                ImageSlideService.slideLeft();
+                $scope.currentIndex = ImageSlideService.getCurrentIndex();
+                slideInterval = $interval(autoSlide, 8000);
             };
 
             //前の画像を表示
             $scope.movePrev = function() {
+                $interval.cancel(slideInterval);
                 ImageSlideService.slideRight();
                 $scope.currentIndex = ImageSlideService.getCurrentIndex();
+                slideInterval = $interval(autoSlide, 8000);
             };
 
-            var slideInterval = $interval(function() {
-                ImageSlideService.slideLeft();
-                $scope.currentIndex = ImageSlideService.getCurrentIndex();
-            }, 8000);
+            //オートスライド
+            slideInterval = $interval(autoSlide, 8000);
 
             return ImageSliderController;
         }
     }
 }).
-//カルーセルアップコントローラー
-controller('CarouselAppController', function($scope, ImageSlideService) {
-
-    $scope.init = function() {
-        ImageSlideService.init(imageList);
-
-        $scope.imageList = ImageSlideService.getIMageList();
-        $scope.currentIndex = ImageSlideService.currentIndex;
-        $scope.totalImageCount = ImageSlideService.setTotalImageCount($scope.imageList.length);
-    };
-
-})
 //アニメーション制御
-.animation('.slide-animation', function (ImageSlideService) {
+animation('.slide-animation', function (ImageSlideService) {
     return {
         beforeAddClass: function (element, className, done) {
             if (className === 'ng-hide') {
