@@ -139,8 +139,8 @@ directive('imageSlider', function(ImageSlideService, $interval) {
             + '<li ng-repeat="img in imageList" ng-show="$index == currentIndex" ng-class="{active: $index == currentIndex}" class="slide-animation" item-index="{{$index}}"><a><img ng-src="{{img.src}}"></a></li>'
             + '</ul>'
             + '</div>'
-            + '<div ng-click="movePrev()" class="leftArrow arrowButton"></div>'
-            + '<div ng-click="moveNext()" class="rightArrow arrowButton"></div>'
+            + '<div ng-click="movePrev()" ng-show="isMultiple()" class="leftArrow arrowButton"></div>'
+            + '<div ng-click="moveNext()" ng-show="isMultiple()" class="rightArrow arrowButton"></div>'
             + '<ul class="navigationPoint">'
             + '<li ng-repeat="point in imageList" ng-class="{activePoint: currentIndex == $index}">'
             + '</ul>'
@@ -165,6 +165,7 @@ directive('imageSlider', function(ImageSlideService, $interval) {
             ImageSlideService.setImageSizeObject({'width': imageWidth, 'height': imageHeight});
             ImageSliderController.imageSizeObject = ImageSlideService.getImageSizeObject();
             $imageArea.css({'height': ImageSliderController.imageSizeObject.height});
+            $(".arrowButton").css('top', ImageSliderController.imageSizeObject.height * 0.45);
 
             //左へスライド、現在のインデックスを格納
             var autoSlide = function() {
@@ -186,6 +187,11 @@ directive('imageSlider', function(ImageSlideService, $interval) {
                 ImageSlideService.slideRight();
                 $scope.currentIndex = ImageSlideService.getCurrentIndex();
                 slideInterval = $interval(autoSlide, 8000);
+            };
+
+            //イメージ数が1つだけか判定
+            $scope.isMultiple = function() {
+                return ImageSlideService.totalImageCount > 1;
             };
 
             //オートスライド
