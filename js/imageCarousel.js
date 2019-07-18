@@ -2,9 +2,8 @@
  * Image Carousel
  ***********************************************/
 angular.module('myApp', ['ngAnimate']).
-service('ImageSlideService', function($rootScope) {
+service('ImageSlideService', function() {
     var ImageSlideService = {};
-    var slideInterval = null;
 
     ImageSlideService.currentIndex = 0;
     ImageSlideService.totalImageCount = 0;
@@ -22,10 +21,6 @@ service('ImageSlideService', function($rootScope) {
         ImageSlideService.imageList = imageList;
     };
 
-    ImageSlideService.serCurrentIndex = function (index) {
-        ImageSlideService.currentIndex = index;
-    };
-
     ImageSlideService.setTotalImageCount = function (totalImageCount) {
         ImageSlideService.totalImageCount = totalImageCount;
     };
@@ -38,20 +33,12 @@ service('ImageSlideService', function($rootScope) {
         ImageSlideService.imageSizeObject = imageSizeObject;
     };
 
-    ImageSlideService.setMoveDirection = function (moveDirection) {
-        ImageSlideService.moveDirection = moveDirection;
-    };
-
     ImageSlideService.getIMageList = function() {
         return ImageSlideService.imageList;
     };
 
     ImageSlideService.getCurrentIndex = function() {
         return ImageSlideService.currentIndex;
-    };
-
-    ImageSlideService.getImageArea = function () {
-        return ImageSlideService.imageArea;
     };
 
     ImageSlideService.getImageSizeObject = function () {
@@ -95,12 +82,14 @@ directive('imageSlider', function(ImageSlideService, $interval) {
             '<div class="viewArea">'
             + '<div class="slideWrapper marginCentering">'
             + '<ul class="imageArea">'
-            + '<li ng-repeat="img in imageList" ng-show="$index == currentIndex" ng-class="{active: $index == currentIndex}" class="slide-animation" slide-item item-index="{{$index}}"><a><img ng-src="{{img.src}}"></a></li>'
+            + '<li ng-repeat="img in imageList" ng-show="$index == currentIndex" ng-class="{active: $index == currentIndex}" class="slide-animation" item-index="{{$index}}"><a><img ng-src="{{img.src}}"></a></li>'
             + '</ul>'
             + '</div>'
             + '<div ng-click="movePrev()" class="leftArrow arrowButton"></div>'
             + '<div ng-click="moveNext()" class="rightArrow arrowButton"></div>'
-            + '<navigation-point />'
+            + '<ul class="navigationPoint">'
+            + '<li ng-repeat="point in imageList" ng-class="{activePoint: currentIndex == $index}">'
+            + '</ul>'
             + '</div>',
         scope: false,
         controller: function($scope) {
@@ -116,7 +105,6 @@ directive('imageSlider', function(ImageSlideService, $interval) {
             //画像サイズ設定
             ImageSlideService.setImageSizeObject({'width': imageWidth, 'height': imageHeight});
             ImageSliderController.imageSizeObject = ImageSlideService.getImageSizeObject();
-
             $imageArea.css({'height': ImageSliderController.imageSizeObject.height});
 
             //次の画像を表示
@@ -140,41 +128,6 @@ directive('imageSlider', function(ImageSlideService, $interval) {
         }
     }
 }).
-//スライドアイテム操作
-directive('slideItem', function(ImageSlideService) {
-    return {
-        restrict: 'A',
-        require: '^^imageSlider',
-        scope: false,
-        controller($scope, $element) {
-            $scope.initCount = 0;
-            $scope.$elem = {};
-
-            $scope.$emit('itemRoadFinished', $element);
-        },
-        link: function(scope, elem, attr, ctrl) {
-            var $elem = $(elem[0]);
-
-            $elem.find('img').css({
-                'width': ctrl.imageSizeObject.width,
-                'height': ctrl.imageSizeObject.height
-            });
-        }
-    }
-}).
-//ナビゲーションポイント制御
-directive('navigationPoint', function() {
-    return {
-        restrict: 'E',
-        require: '^^imageSlider',
-        replace: true,
-        template:
-            '<ul class="navigationPoint">'
-            + '<li ng-repeat="point in imageList" ng-class="{activePoint: currentIndex == $index}">'
-            + '</ul>',
-        scope: false
-    }
-}).
 //カルーセルアップコントローラー
 controller('CarouselAppController', function($scope, ImageSlideService) {
 
@@ -187,10 +140,10 @@ controller('CarouselAppController', function($scope, ImageSlideService) {
     };
 
 })
+//アニメーション制御
 .animation('.slide-animation', function (ImageSlideService) {
     return {
         beforeAddClass: function (element, className, done) {
-
             if (className === 'ng-hide') {
                 var finishPoint = ImageSlideService.imageSizeObject.width;
                 if(ImageSlideService.moveDirection !== 'right') {
@@ -202,7 +155,6 @@ controller('CarouselAppController', function($scope, ImageSlideService) {
             }
         },
         removeClass: function (element, className, done) {
-
             if (className === 'ng-hide') {
                 element.removeClass('ng-hide');
 
