@@ -19,18 +19,23 @@
 #carouselArea .viewArea {
     position: relative;
 }
-#carouselArea .imageArea {
+#carouselArea .slideWrapper {
     position: relative;
     width: 84%;
     height: 100%;
     overflow: hidden;
 }
-#carouselArea .imageArea li {
-    width: 100%;
+#carouselArea .imageArea {
     position: relative;
-    left: 0;
-    top: 0;
-    z-index: 5;
+}
+#carouselArea .imageArea li {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+#carouselArea .imageArea li img {
+    width: 100%;
+    height: 100%;
 }
 
 #carouselArea .navigationPoint {
