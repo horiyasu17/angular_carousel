@@ -8,9 +8,15 @@ service('ImageSlideService', function($interval) {
 
     ImageSlideService.currentIndex = 0;
     ImageSlideService.totalImageCount = 0;
+    ImageSlideService.imageArea = {};
     ImageSlideService.imageList = {};
     ImageSlideService.imageSizeObject = {};
     ImageSlideService.moveDirection = 'left';
+
+    ImageSlideService.init = function(imageList) {
+        ImageSlideService.setTotalImageCount(imageList.length);
+        ImageSlideService.setIMageList(imageList);
+    };
 
     ImageSlideService.setIMageList = function(imageList) {
         ImageSlideService.imageList = imageList;
@@ -22,6 +28,10 @@ service('ImageSlideService', function($interval) {
 
     ImageSlideService.setTotalImageCount = function (totalImageCount) {
         ImageSlideService.totalImageCount = totalImageCount;
+    };
+
+    ImageSlideService.setImageArea = function (imageArea) {
+        ImageSlideService.imageArea = imageArea;
     };
 
     ImageSlideService.setImageSizeObject = function (imageSizeObject) {
@@ -38,6 +48,10 @@ service('ImageSlideService', function($interval) {
 
     ImageSlideService.getCurrentIndex = function() {
         return ImageSlideService.currentIndex;
+    };
+
+    ImageSlideService.getImageArea = function () {
+        return ImageSlideService.imageArea;
     };
 
     ImageSlideService.getImageSizeObject = function () {
@@ -106,27 +120,36 @@ directive('imageSlider', function(ImageSlideService) {
             + '</div>',
         scope: false,
         controller: function($scope) {
+
+            var ImageSliderController = {};
+
             var $imageArea = $('.imageArea');
             var imageWidth = $imageArea.width();
             var imageHeight = imageWidth / 2;
 
+            ImageSlideService.setImageArea($imageArea);
+
             //画像サイズ設定
             ImageSlideService.setImageSizeObject({'width': imageWidth, 'height': imageHeight});
+            ImageSliderController.imageSizeObject = ImageSlideService.getImageSizeObject();
 
+            $imageArea.css({'height': ImageSliderController.imageSizeObject.height});
 
             //次の画像を表示
             $scope.moveNext = function() {
-                ImageSlideService.slideLeft($imageArea);
+                ImageSlideService.slideLeft();
                 $scope.currentIndex = ImageSlideService.getCurrentIndex();
             };
 
             //前の画像を表示
             $scope.movePrev = function() {
-                ImageSlideService.slideRight($imageArea);
+                ImageSlideService.slideRight();
                 $scope.currentIndex = ImageSlideService.getCurrentIndex();
             };
 
             // ImageSlideService.autoSlideInterval($imageArea);
+
+            return ImageSliderController;
         }
     }
 }).
@@ -143,36 +166,12 @@ directive('slideItem', function(ImageSlideService) {
             $scope.$elem = {};
         },
         link: function(scope, elem, attr, ctrl) {
+            var $elem = $(elem[0]);
 
-            var $imageArea = $('.imageArea');
-            var imageSizeObject = ImageSlideService.getImageSizeObject();
-            scope.$elem = $(elem[0]);
-
-            $imageArea.css({
-                'height': imageSizeObject.height
+            $elem.find('img').css({
+                'width': ctrl.imageSizeObject.width,
+                'height': ctrl.imageSizeObject.height
             });
-
-            scope.$elem.find('img').css({
-                'width': imageSizeObject.width,
-                'height': imageSizeObject.height
-            });
-
-            ImageSlideService.initSlideSet(scope.$elem, scope.itemIndex);
-
-            // scope.$watch(function () {
-            //     return scope.$parent.currentIndex;
-            // }, function (newVal, oldVal) {
-            //     if (scope.initCount == 0) {
-            //         scope.initCount += 1;
-            //         return;
-            //     }
-
-                // if(ImageSlideService.getMoveDirection() == 'left') {
-                //     ImageSlideService.slideLeft(scope.$elem);
-                // } else {
-                //     ImageSlideService.slideRight(scope.$elem);
-                // }
-            // });
         }
     }
 }).
@@ -193,10 +192,11 @@ directive('navigationPoint', function() {
 controller('CarouselAppController', function($scope, ImageSlideService) {
 
     $scope.init = function() {
-        ImageSlideService.setIMageList(imageList);
+        ImageSlideService.init(imageList);
+
         $scope.imageList = ImageSlideService.getIMageList();
         $scope.currentIndex = ImageSlideService.currentIndex;
-        $scope.totalImageCount =ImageSlideService.setTotalImageCount($scope.imageList.length);
+        $scope.totalImageCount = ImageSlideService.setTotalImageCount($scope.imageList.length);
     };
 
 });
